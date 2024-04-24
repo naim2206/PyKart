@@ -1,72 +1,47 @@
 from ursina import *
 import random
+from entities.car import Car, PlayerCar
+from entities.track import Track
 
 
 def update():
-    global offset, collision
+    global offset, collision, elapsed_time
+
+    if not collision:
+        elapsed_time += time.dt
+        timer_text.text = f'Time: {elapsed_time:.2f}'
+
     offset += time.dt * 0.3
     track.texture_offset = (0, offset)
 
-    car0.x += held_keys['d'] * time.dt * 0.2
-    car0.x -= held_keys['a'] * time.dt * 0.2
-
-    if car0.x >= 0.24:
-        car0.x = 0.24
-    if car0.x <= -0.28:
-        car0.x = -0.28
-
     for car in cars:
-        # for car1 and car2
-        if car.rotation_y == 0:
-            car.z -= time.dt * random.uniform(.02, .05)
-        else:  # for car3 and car4
-            car.z -= time.dt * random.uniform(.09, .12)
-
-        # bottom boundary checking
-        if car.z <= -0.3:
-            car.z = 0.4
-
         if abs(car0.x - car.x) < 0.05:
             if abs(car0.z - car.z) < 0.05:
                 collision = True
-
-    if collision:
-        car0.rotation_y += time.dt * 100
-        if car0.rotation_y >= 360:
-            car0.rotation_y = 0
-            collision = False
-
-
-class Car(Entity):
-    scale_y = 0.0001
-    scale_z = 0.06
-
-    def __init__(self, img, scale_x, position, angle):
-        super().__init__()
-        self.parent = track
-        self.model = 'cube'
-        self.texture = img
-        self.scale = (scale_x, self.scale_y, self.scale_z)
-        self.position = position
-        self.collider = 'box'
-        self.rotation_y = angle
+                Text(text='Game over', scale=0.3, origin=(0, 0))
+                car0.disable()
 
 
 app = Ursina()
 # window.color = color.orange
 collision = False
 
+timer_text = Text(text='Time: 0', scale=0.1, origin=(1.5, -8))
+
+elapsed_time = 0
+
 cars_img = ['assets/car0.png', 'assets/car1.png', 'assets/car2.png',
             'assets/car3.png', 'assets/car4.png']
 
-track = Entity(model='cube', scale=(10, .5, 60),
-               position=(0, 0), texture='./assets/track.png')
-
-car0 = Car(cars_img[0], 0.15, (.05, 1, -.12), 0)
-car1 = Car(cars_img[1], 0.08, (.05, 1, .2), 0)
-car2 = Car(cars_img[2], 0.07, (.19, 1, .1), 0)
-car3 = Car(cars_img[3], 0.07, (-.09, 1, 0), 180)
-car4 = Car(cars_img[4], 0.07, (-.23, 1, -.1), 180)
+track = Track()
+car_lines = [0.05, 0.19, -0.09, -0.23]
+car0 = PlayerCar(cars_img[0], (.05, 1, -.12), 0, track)
+car1 = Car(cars_img[1], (car_lines[0], 1, random.uniform(0.1, 0.2)), 0, track)
+car2 = Car(cars_img[2], (car_lines[1], 1, random.uniform(-0.12, 0.2)), 0, track)
+car3 = Car(cars_img[3], (car_lines[2], 1, random.uniform(-0.12, 0.2)), 180,
+           track)
+car4 = Car(cars_img[4], (car_lines[3], 1, random.uniform(-0.12, 0.2)), 180,
+           track)
 
 cars = [car1, car2, car3, car4]
 
