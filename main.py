@@ -1,4 +1,5 @@
 from ursina import *
+from elements.forest_track import ForestTrack
 from elements.track import Track
 from elements.car import Player
 
@@ -19,7 +20,7 @@ def deaccelerate():
 
 app = Ursina()
 
-ground = Track()
+ground = ForestTrack()
 
 player = Player().entity
 curr_speed = PLAYER_INITIAL_SPEED
