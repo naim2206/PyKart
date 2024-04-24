@@ -1,63 +1,77 @@
 from ursina import *
-from elements.forest_track import ForestTrack
-from elements.track import Track
-from elements.car import Player
-
-ROTATION_SPEED = 50
-PLAYER_INITIAL_SPEED = 0
-PLAYER_ACCELERATION = 15
-PLAYER_DECELERATION = 5
-PLAYER_BREAK = 50
-
-
-def deaccelerate():
-    global curr_speed
-    if curr_speed > 0:
-        curr_speed -= PLAYER_DECELERATION * time.dt
-    elif curr_speed < 0:
-        curr_speed += PLAYER_DECELERATION * time.dt
-
-
-app = Ursina()
-
-ground = ForestTrack()
-
-player = Player().entity
-curr_speed = PLAYER_INITIAL_SPEED
+import random
 
 
 def update():
-    global curr_speed
-    if held_keys['w']:
-        curr_speed += PLAYER_ACCELERATION * time.dt
-        if curr_speed < 0:
-            curr_speed += PLAYER_BREAK * time.dt
+    global offset, collision
+    offset += time.dt * 0.3
+    track.texture_offset = (0, offset)
 
-    if held_keys['s']:
-        curr_speed -= PLAYER_ACCELERATION * time.dt
-        if curr_speed > 0:
-            curr_speed -= PLAYER_BREAK * time.dt
-    else:
-        deaccelerate()
-    player.position += player.forward * curr_speed * time.dt
+    car0.x += held_keys['d'] * time.dt * 0.2
+    car0.x -= held_keys['a'] * time.dt * 0.2
 
-    if curr_speed > 0:
-        if held_keys['a']:
-            player.rotation_y -= ROTATION_SPEED * time.dt
-            deaccelerate()
-        if held_keys['d']:
-            player.rotation_y += ROTATION_SPEED * time.dt
-            deaccelerate()
-    if curr_speed < 0:
-        if held_keys['a']:
-            player.rotation_y += ROTATION_SPEED * time.dt
-            deaccelerate()
-        if held_keys['d']:
-            player.rotation_y -= ROTATION_SPEED * time.dt
-            deaccelerate()
+    if car0.x >= 0.24:
+        car0.x = 0.24
+    if car0.x <= -0.28:
+        car0.x = -0.28
 
-    if curr_speed < 0.05 and curr_speed > -0.05:
-        curr_speed = 0
+    for car in cars:
+        # for car1 and car2
+        if car.rotation_y == 0:
+            car.z -= time.dt * random.uniform(.02, .05)
+        else:  # for car3 and car4
+            car.z -= time.dt * random.uniform(.09, .12)
+
+        # bottom boundary checking
+        if car.z <= -0.3:
+            car.z = 0.4
+
+        if abs(car0.x - car.x) < 0.05:
+            if abs(car0.z - car.z) < 0.05:
+                collision = True
+
+    if collision:
+        car0.rotation_y += time.dt * 100
+        if car0.rotation_y >= 360:
+            car0.rotation_y = 0
+            collision = False
 
 
+class Car(Entity):
+    scale_y = 0.0001
+    scale_z = 0.06
+
+    def __init__(self, img, scale_x, position, angle):
+        super().__init__()
+        self.parent = track
+        self.model = 'cube'
+        self.texture = img
+        self.scale = (scale_x, self.scale_y, self.scale_z)
+        self.position = position
+        self.collider = 'box'
+        self.rotation_y = angle
+
+
+app = Ursina()
+# window.color = color.orange
+collision = False
+
+cars_img = ['assets/car0.png', 'assets/car1.png', 'assets/car2.png',
+            'assets/car3.png', 'assets/car4.png']
+
+track = Entity(model='cube', scale=(10, .5, 60),
+               position=(0, 0), texture='./assets/track.png')
+
+car0 = Car(cars_img[0], 0.15, (.05, 1, -.12), 0)
+car1 = Car(cars_img[1], 0.08, (.05, 1, .2), 0)
+car2 = Car(cars_img[2], 0.07, (.19, 1, .1), 0)
+car3 = Car(cars_img[3], 0.07, (-.09, 1, 0), 180)
+car4 = Car(cars_img[4], 0.07, (-.23, 1, -.1), 180)
+
+cars = [car1, car2, car3, car4]
+
+offset = 0
+
+camera.position = (0, 8, -26)
+camera.rotation_x = 20
 app.run()
