@@ -2,6 +2,19 @@ from ursina import *
 import random
 
 
+class Singleton:
+    INSTANCES = {}
+
+
+def singleton(clase):
+    def obtener_instancia(*args, **kwargs):
+        if clase not in Singleton.INSTANCES:
+            Singleton.INSTANCES[clase] = clase(*args, **kwargs)
+        return Singleton.INSTANCES[clase]
+
+    return obtener_instancia
+
+
 class Car(Entity):
     ENEMY_CAR_SPEED_FRONT = [0.01, 0.09]
     ENEMY_CAR_SPEED_BACK = [0.05, 0.14]
@@ -36,6 +49,7 @@ class Car(Entity):
             self.z = -0.3
 
 
+@singleton
 class PlayerCar(Car):
     def __init__(self, img, position, angle, track):
         super().__init__(img, position, angle, track)
