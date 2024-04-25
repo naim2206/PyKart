@@ -3,24 +3,66 @@ import random
 
 
 class Singleton:
+    """
+    Clase Singleton que garantiza que solo haya una instancia de cada clase específica.
+    
+    Atributos:
+    - INSTANCES (dict): Un diccionario para almacenar las instancias únicas de las clases.
+    """
     INSTANCES = {}
 
-
 def singleton(clase):
+    """
+    Decorador para convertir una clase en un Singleton.
+
+    Parámetros:
+    - clase (type): La clase que se convertirá en Singleton.
+
+    Retorna:
+    - función: La función que maneja la lógica de instancia única para la clase.
+    """
     def obtener_instancia(*args, **kwargs):
+        """
+        Función interna para obtener la instancia única de la clase.
+
+        Parámetros:
+        - *args: Argumentos posicionales que se pasan a la clase.
+        - **kwargs: Argumentos de palabras clave que se pasan a la clase.
+
+        Retorna:
+        - objeto: La instancia única de la clase.
+        """
         if clase not in Singleton.INSTANCES:
             Singleton.INSTANCES[clase] = clase(*args, **kwargs)
         return Singleton.INSTANCES[clase]
 
     return obtener_instancia
 
-
 class Car(Entity):
+    """
+    Clase para representar un coche en el juego.
+
+    Atributos:
+    - img (str): La ruta de la textura del coche.
+    - position (Vec3): La posición inicial del coche.
+    - angle (float): El ángulo de rotación inicial del coche.
+    - track (Entity): La pista a la que pertenece el coche.
+    """
     ENEMY_CAR_SPEED_FRONT = [0.01, 0.09]
     ENEMY_CAR_SPEED_BACK = [0.05, 0.14]
     ENEMY_ACCELERATION = 0.0001
 
+    
     def __init__(self, img, position, angle, track):
+        """
+        Constructor de la clase Car.
+
+        Parámetros:
+        - img (str): La ruta de la textura del coche.
+        - position (Vec3): La posición inicial del coche.
+        - angle (float): El ángulo de rotación inicial del coche.
+        - track (Entity): La pista a la que pertenece el coche.
+        """
         super().__init__()
         self.parent = track
         self.model = 'cube'
@@ -30,8 +72,11 @@ class Car(Entity):
         self.collider = 'box'
         self.rotation_y = angle
 
+    
     def update(self):
-        # for car1 and car2
+        """
+        Método para actualizar la posición del coche en cada fotograma del juego.
+        """
         if self.rotation_y == 0:
             self.z -= time.dt * random.uniform(self.ENEMY_CAR_SPEED_FRONT[0],
                                                self.ENEMY_CAR_SPEED_FRONT[1])
@@ -51,11 +96,34 @@ class Car(Entity):
 
 @singleton
 class PlayerCar(Car):
+    """
+    Clase singleton para representar el coche del jugador.
+
+    Hereda de la clase Car.
+
+    Atributos:
+    - img (str): La ruta de la textura del coche.
+    - position (Vec3): La posición inicial del coche.
+    - angle (float): El ángulo de rotación inicial del coche.
+    - track (Entity): La pista a la que pertenece el coche.
+    """
     def __init__(self, img, position, angle, track):
+        """
+        Constructor de la clase PlayerCar.
+
+        Parámetros:
+        - img (str): La ruta de la textura del coche.
+        - position (Vec3): La posición inicial del coche.
+        - angle (float): El ángulo de rotación inicial del coche.
+        - track (Entity): La pista a la que pertenece el coche.
+        """
         super().__init__(img, position, angle, track)
         self.scale = (0.2, self.scale_y, self.scale_z)
 
     def update(self):
+        """
+        Método para actualizar la posición del coche del jugador en cada fotograma del juego.
+        """
         self.x += held_keys['d'] * time.dt * 0.2
         self.x -= held_keys['a'] * time.dt * 0.2
 
