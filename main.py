@@ -5,6 +5,13 @@ from entities.track import Track
 
 
 def update():
+    """
+    Función para actualizar la lógica del juego en cada fotograma.
+
+    Esta función maneja la lógica principal del juego, incluyendo la actualización del tiempo,
+    la posición de la textura de la pista, la detección de colisiones entre los coches y
+    la acción resultante en caso de colisión.
+    """
     global offset, collision, elapsed_time
 
     if not collision:
