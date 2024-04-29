@@ -48,12 +48,10 @@ class Car(Entity):
     - angle (float): El ángulo de rotación inicial del coche.
     - track (Entity): La pista a la que pertenece el coche.
     """
-    ENEMY_CAR_SPEED_FRONT = [0.01, 0.09]
-    ENEMY_CAR_SPEED_BACK = [0.05, 0.14]
     ENEMY_ACCELERATION = 0.0001
 
     
-    def __init__(self, img, position, angle, track):
+    def __init__(self, img, position, angle, track, speed):
         """
         Constructor de la clase Car.
 
@@ -71,26 +69,30 @@ class Car(Entity):
         self.position = position
         self.collider = 'box'
         self.rotation_y = angle
-
+        self.speed = speed 
+        
+        # Definir velocidades aleatorias
+        self.ENEMY_CAR_SPEED_FRONT = [random.uniform(0.01, 0.09), random.uniform(0.1, 0.2)]
+        self.ENEMY_CAR_SPEED_BACK = [random.uniform(0.05, 0.14), random.uniform(0.15, 0.25)]
     
     def update(self):
         """
         Método para actualizar la posición del coche en cada fotograma del juego.
         """
         if self.rotation_y == 0:
-            self.z -= time.dt * random.uniform(self.ENEMY_CAR_SPEED_FRONT[0],
-                                               self.ENEMY_CAR_SPEED_FRONT[1])
+            self.z -= time.dt * self.speed
             self.ENEMY_CAR_SPEED_FRONT[0] -= self.ENEMY_ACCELERATION
             self.ENEMY_CAR_SPEED_FRONT[1] -= self.ENEMY_ACCELERATION
         else:  # for car3 and car4
-            self.z -= time.dt * random.uniform(self.ENEMY_CAR_SPEED_BACK[0],
-                                               self.ENEMY_CAR_SPEED_BACK[1])
+            self.z -= time.dt * self.speed
             self.ENEMY_CAR_SPEED_BACK[0] += self.ENEMY_ACCELERATION
             self.ENEMY_CAR_SPEED_BACK[1] += self.ENEMY_ACCELERATION
 
         if self.z < -0.3:
+            self.speed = random.uniform(0.3, 0.6)
             self.z = 0.4
         if self.z > 0.5:
+            self.speed = random.uniform(0.3, 0.6)
             self.z = -0.3
 
 
@@ -117,17 +119,46 @@ class PlayerCar(Car):
         - angle (float): El ángulo de rotación inicial del coche.
         - track (Entity): La pista a la que pertenece el coche.
         """
-        super().__init__(img, position, angle, track)
+        super().__init__(img, position, angle, track,0)
         self.scale = (0.2, self.scale_y, self.scale_z)
 
     def update(self):
         """
         Método para actualizar la posición del coche del jugador en cada fotograma del juego.
         """
-        self.x += held_keys['d'] * time.dt * 0.2
-        self.x -= held_keys['a'] * time.dt * 0.2
+        self.x += held_keys['d'] * time.dt * 0.4
+        self.x -= held_keys['a'] * time.dt * 0.4
 
-        if self.x >= 0.24:
-            self.x = 0.24
-        if self.x <= -0.28:
-            self.x = -0.28
+        if self.x >= 0.38:
+            self.x = 0.38
+        if self.x <= -0.33:
+            self.x = -0.33
+            
+class CarGroup:
+    """
+    Clase que representa un grupo de coches.
+    """
+    def __init__(self):
+        self._cars = []
+
+    def add_car(self, car):
+        """
+        Método para añadir un coche al grupo.
+        """
+        self._cars.append(car)
+
+    def update_all(self):
+        """
+        Método para actualizar todos los coches en el grupo.
+        """
+        for car in self._cars:
+            car.update()
+            
+    def check_for_collision(self, car0):
+        global collision
+        for car in self._cars:
+            if abs(car0.x - car.x) < 0.05:
+                if abs(car0.z - car.z) < 0.05:
+                    collision = True
+                    Text(text='Game over', scale=0.3, origin=(0, 0))
+                    car0.disable()
