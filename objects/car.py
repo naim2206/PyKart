@@ -1,6 +1,8 @@
 from ursina import *
 import random
 
+from objects.timer import Timer
+
 
 class Singleton:
     """
@@ -10,6 +12,7 @@ class Singleton:
     - INSTANCES (dict): Un diccionario para almacenar las instancias únicas de las clases.
     """
     INSTANCES = {}
+
 
 def singleton(clase):
     """
@@ -21,6 +24,7 @@ def singleton(clase):
     Retorna:
     - función: La función que maneja la lógica de instancia única para la clase.
     """
+
     def obtener_instancia(*args, **kwargs):
         """
         Función interna para obtener la instancia única de la clase.
@@ -38,6 +42,7 @@ def singleton(clase):
 
     return obtener_instancia
 
+
 class Car(Entity):
     """
     Clase para representar un coche en el juego.
@@ -50,7 +55,6 @@ class Car(Entity):
     """
     ENEMY_ACCELERATION = 0.0001
 
-    
     def __init__(self, img, position, angle, track, speed):
         """
         Constructor de la clase Car.
@@ -69,12 +73,14 @@ class Car(Entity):
         self.position = position
         self.collider = 'box'
         self.rotation_y = angle
-        self.speed = speed 
-        
+        self.speed = speed
+
         # Definir velocidades aleatorias
-        self.ENEMY_CAR_SPEED_FRONT = [random.uniform(0.01, 0.09), random.uniform(0.1, 0.2)]
-        self.ENEMY_CAR_SPEED_BACK = [random.uniform(0.05, 0.14), random.uniform(0.15, 0.25)]
-    
+        self.ENEMY_CAR_SPEED_FRONT = [random.uniform(0.01, 0.09),
+                                      random.uniform(0.1, 0.2)]
+        self.ENEMY_CAR_SPEED_BACK = [random.uniform(0.05, 0.14),
+                                     random.uniform(0.15, 0.25)]
+
     def update(self):
         """
         Método para actualizar la posición del coche en cada fotograma del juego.
@@ -109,6 +115,7 @@ class PlayerCar(Car):
     - angle (float): El ángulo de rotación inicial del coche.
     - track (Entity): La pista a la que pertenece el coche.
     """
+
     def __init__(self, img, position, angle, track):
         """
         Constructor de la clase PlayerCar.
@@ -119,7 +126,7 @@ class PlayerCar(Car):
         - angle (float): El ángulo de rotación inicial del coche.
         - track (Entity): La pista a la que pertenece el coche.
         """
-        super().__init__(img, position, angle, track,0)
+        super().__init__(img, position, angle, track, 0)
         self.scale = (0.2, self.scale_y, self.scale_z)
 
     def update(self):
@@ -133,13 +140,18 @@ class PlayerCar(Car):
             self.x = 0.38
         if self.x <= -0.33:
             self.x = -0.33
-            
-class CarGroup:
+
+
+class CarGroup(Entity):
     """
     Clase que representa un grupo de coches.
     """
-    def __init__(self):
+
+    def __init__(self, player_car, timer):
+        super().__init__()
         self._cars = []
+        self.player_car = player_car
+        self.timer = timer
 
     def add_car(self, car):
         """
@@ -147,18 +159,14 @@ class CarGroup:
         """
         self._cars.append(car)
 
-    def update_all(self):
-        """
-        Método para actualizar todos los coches en el grupo.
-        """
+    def update(self):
+        self.timer.update()
+        self.check_for_collision()
+
+    def check_for_collision(self):
         for car in self._cars:
-            car.update()
-            
-    def check_for_collision(self, car0):
-        global collision
-        for car in self._cars:
-            if abs(car0.x - car.x) < 0.05:
-                if abs(car0.z - car.z) < 0.05:
-                    collision = True
+            if abs(self.player_car.x - car.x) < 0.05:
+                if abs(self.player_car.z - car.z) < 0.05:
+                    self.timer.collision = True
                     Text(text='Game over', scale=0.3, origin=(0, 0))
-                    car0.disable()
+                    self.player_car.disable()
