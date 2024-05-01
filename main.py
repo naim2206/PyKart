@@ -69,6 +69,7 @@ def main():
 
     camera.position = (0, 8, -26)
     camera.rotation_x = 20
+    sky = Sky()
 
 
 def show_menu():
