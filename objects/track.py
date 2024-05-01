@@ -13,7 +13,8 @@ class Track(Entity):
     - position (Vec3): La posición inicial de la pista en el mundo.
     - texture (str): La ruta de la textura aplicada a la pista.
     """
-    def __init__(self):
+
+    def __init__(self, texture_selected: str):
         """
         Constructor de la clase Track.
         """
@@ -21,4 +22,4 @@ class Track(Entity):
         self.model = 'cube'
         self.scale = (10, .5, 60)
         self.position = (0, 0)
-        self.texture = './assets/track1.jpg'
+        self.texture = texture_selected

@@ -14,33 +14,31 @@ def update():
     la posición de la textura de la pista, la detección de colisiones entre los coches y
     la acción resultante en caso de colisión.
     """
-    # global offset, collision, elapsed_time
-    global offset
-
-    # car_group.check_for_collision(car0)
-
-    # if not collision:
-    #    elapsed_time += time.dt
-    #    timer_text.text = f'Time: {elapsed_time:.2f}'
+    global offset, track
 
     offset += time.dt * 0.3
     track.texture_offset = (0, offset)
 
+    if held_keys['1']:
+        track.texture = 'assets/track1.jpg'
+    if held_keys['2']:
+        track.texture = 'assets/track2.jpg'
+    if held_keys['3']:
+        track.texture = 'assets/track3.jpg'
 
-# collision = False
-
-# timer_text = Text(text='Time: 0', scale=0.1, origin=(1.5, -8))
-
-# elapsed_time = 0
 
 def main():
-    global offset, track, app, play_button
+    global offset, track, app, play_button, track1, track2, track3
     destroy(play_button)
+    destroy(track1)
+    destroy(track2)
+    destroy(track3)
     # app.resume()
     cars_img = ['assets/car0.png', 'assets/car1.png', 'assets/car2.png',
                 'assets/car3.png', 'assets/car4.png']
 
     # track = Track()
+    track.texture = texture
     car_lines = [-0.38, -0.23, -0.09, 0.05, 0.19, 0.33]
     car0 = PlayerCar(cars_img[0], (.05, 1, -.12), 0, track)
     car1 = Car(cars_img[1], (car_lines[0], 1, random.uniform(3, 5)), 0,
@@ -55,7 +53,7 @@ def main():
                track, random.uniform(0.2, 0.4))
     car6 = Car(cars_img[2], (car_lines[5], 1, random.uniform(3, 5)), 180,
                track, random.uniform(0.2, 0.7))
-
+    window_width, window_height = window.size
     timer = Timer()
     car_group = CarGroup(car0, timer)
     car_group.add_car(car1)
@@ -73,20 +71,60 @@ def main():
 
 
 def show_menu():
-    global offset, track, play_button
+    global offset, track, play_button, track1, track2, track3, texture
     offset = 0
-    track = Track()
+    track = Track(texture)
 
-    play_button = Button('Play', on_click=main)
-    play_button.scale *= 2  # Increase button size
-    play_button.y -= 0.2  # Adjust button position
+    play_button = Button('Play', on_click=main, scale=(0.2, 0.1), y=0.3)
+    play_button.text_entity.scale *= 2
+    track1 = Button(texture='./assets/track1', on_click=texture1, scale=(
+        0.2, 0.2),
+                    x=-0.5, color=color.blue)
+    track2 = Button(texture='./assets/track2', on_click=texture2,
+                    scale=(0.2, 0.2),
+                    x=0, color=color.blue)
+    track3 = Button(texture='./assets/track3', on_click=texture3,
+                    scale=(0.2, 0.2),
+                    x=0.5, color=color.blue)
+    track1.color = color.green
+    track2.color = color.white
+    track3.color = color.white
+
+
+def texture1():
+    global texture, track1, track2, track3
+    texture = './assets/track1.jpg'
+    track1.color = color.green
+    track2.color = color.white
+    track3.color = color.white
+
+
+def texture2():
+    global texture, track1, track2, track3
+    texture = './assets/track2.jpg'
+    track1.color = color.white
+    track2.color = color.green
+    track3.color = color.white
+
+
+def texture3():
+    global texture, track1, track2, track3
+    texture = './assets/track3.jpg'
+    track1.color = color.white
+    track2.color = color.white
+    track3.color = color.green
 
 
 if __name__ == '__main__':
     app = Ursina()
+    window.fullscreen = True
     play_button = None
     offset = None
     track = None
+    track1 = None
+    track2 = None
+    track3 = None
+    texture = './assets/track1.jpg'
     show_menu()
 
     app.run()

@@ -5,12 +5,13 @@ class Timer(Text):
     elapsed_time = 0
     collision = False
 
-    def __init__(self, text='Time: 0', scale=0.1,
-                 origin=(1.5, -8)):
+    def __init__(self, text='Time: 0', scale=2, origin=(0, 0)):
         super().__init__()
         self.text = text
         self.scale = scale
         self.origin = origin
+        self.y = 0.4
+        self.x = -0.6
 
     def update(self):
         """

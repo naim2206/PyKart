@@ -168,5 +168,6 @@ class CarGroup(Entity):
             if abs(self.player_car.x - car.x) < 0.05:
                 if abs(self.player_car.z - car.z) < 0.05:
                     self.timer.collision = True
-                    Text(text='Game over', scale=0.3, origin=(0, 0))
+                    game_over_text = Text(text='Game Over', scale=10,
+                                          origin=(0, 0), x=0, y=0)
                     self.player_car.disable()
