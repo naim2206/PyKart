@@ -37,7 +37,7 @@ cars_img = ['assets/car0.png', 'assets/car1.png', 'assets/car2.png',
             'assets/car3.png', 'assets/car4.png']
 
 track = Track()
-car_lines = [-0.38, -0.23, -0.09, 0.05, 0.19, 0.33]
+car_lines = [-0.35, -0.23, -0.09, 0.05, 0.19, 0.33]
 car0 = PlayerCar(cars_img[0], (.05, 1, -.12), 0, track)
 car1 = Car(cars_img[1], (car_lines[0], 1, random.uniform(3, 5)), 0,
            track, random.uniform(0.2, 0.4))
@@ -65,4 +65,5 @@ offset = 0
 
 camera.position = (0, 8, -26)
 camera.rotation_x = 20
+sky = Sky()
 app.run()
