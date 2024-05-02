@@ -3,15 +3,17 @@ import random
 from objects.car import Car, CarGroup, PlayerCar
 from objects.timer import Timer
 from objects.track import Track
-from direct.stdpy import thread
+
+CAR_LINES = [-0.38, -0.23, -0.09, 0.05, 0.19, 0.33]
 
 
-def update():
+def update() -> None:
     """
     Función para actualizar la lógica del juego en cada fotograma.
 
-    Esta función maneja la lógica principal del juego, incluyendo la actualización del tiempo,
-    la posición de la textura de la pista, la detección de colisiones entre los coches y
+    Esta función maneja la lógica principal del juego, incluyendo la
+    actualización del tiempo, la posición de la textura de la pista,
+    la detección de colisiones entre los coches y
     la acción resultante en caso de colisión.
     """
     global offset, track
@@ -27,33 +29,35 @@ def update():
         track.texture = 'assets/track3.jpg'
 
 
-def main():
+def main() -> None:
+    """
+    Función principal del juego.
+
+    Esta función inicializa el juego después de hacer clic en el botón de jugar.
+    """
     global offset, track, app, play_button, track1, track2, track3
     destroy(play_button)
     destroy(track1)
     destroy(track2)
     destroy(track3)
-    # app.resume()
     cars_img = ['assets/car0.png', 'assets/car1.png', 'assets/car2.png',
                 'assets/car3.png', 'assets/car4.png']
 
-    # track = Track()
     track.texture = texture
-    car_lines = [-0.38, -0.23, -0.09, 0.05, 0.19, 0.33]
+
     car0 = PlayerCar(cars_img[0], (.05, 1, -.12), 0, track)
-    car1 = Car(cars_img[1], (car_lines[0], 1, random.uniform(3, 5)), 0,
+    car1 = Car(cars_img[1], (CAR_LINES[0], 1, random.uniform(3, 5)), 0,
                track, random.uniform(0.2, 0.4))
-    car2 = Car(cars_img[2], (car_lines[1], 1, random.uniform(1, 1.5)), 0,
+    car2 = Car(cars_img[2], (CAR_LINES[1], 1, random.uniform(1, 1.5)), 0,
                track, random.uniform(0.3, 0.4))
-    car3 = Car(cars_img[3], (car_lines[2], 1, random.uniform(0.5, 2)), 0,
+    car3 = Car(cars_img[3], (CAR_LINES[2], 1, random.uniform(0.5, 2)), 0,
                track, random.uniform(0.2, 0.45))
-    car4 = Car(cars_img[4], (car_lines[3], 1, random.uniform(1, 2)), 180,
+    car4 = Car(cars_img[4], (CAR_LINES[3], 1, random.uniform(1, 2)), 180,
                track, random.uniform(0.25, 0.45))
-    car5 = Car(cars_img[1], (car_lines[4], 1, random.uniform(0.5, 2)), 180,
+    car5 = Car(cars_img[1], (CAR_LINES[4], 1, random.uniform(0.5, 2)), 180,
                track, random.uniform(0.2, 0.4))
-    car6 = Car(cars_img[2], (car_lines[5], 1, random.uniform(3, 5)), 180,
+    car6 = Car(cars_img[2], (CAR_LINES[5], 1, random.uniform(3, 5)), 180,
                track, random.uniform(0.2, 0.7))
-    window_width, window_height = window.size
     timer = Timer()
     car_group = CarGroup(car0, timer)
     car_group.add_car(car1)
@@ -70,20 +74,29 @@ def main():
     sky = Sky()
 
 
-def show_menu():
+def show_menu() -> None:
+    """
+     Muestra el menú inicial del juego.
+
+     Esta función configura y muestra los botones de inicio del juego.
+     """
     global offset, track, play_button, track1, track2, track3, texture
     offset = 0
     track = Track(texture)
 
     play_button = Button('Play', on_click=main, scale=(0.2, 0.1), y=0.3)
     play_button.text_entity.scale *= 2
-    track1 = Button(texture='./assets/track1', on_click=texture1, scale=(
-        0.2, 0.2),
+    track1 = Button(texture='./assets/track1',
+                    on_click=lambda: change_texture(1),
+                    scale=(
+                        0.2, 0.2),
                     x=-0.5, color=color.blue)
-    track2 = Button(texture='./assets/track2', on_click=texture2,
+    track2 = Button(texture='./assets/track2',
+                    on_click=lambda: change_texture(2),
                     scale=(0.2, 0.2),
                     x=0, color=color.blue)
-    track3 = Button(texture='./assets/track3', on_click=texture3,
+    track3 = Button(texture='./assets/track3',
+                    on_click=lambda: change_texture(3),
                     scale=(0.2, 0.2),
                     x=0.5, color=color.blue)
     track1.color = color.green
@@ -91,28 +104,21 @@ def show_menu():
     track3.color = color.white
 
 
-def texture1():
+def change_texture(track_number: int) -> None:
+    """
+    Cambia la textura de la pista.
+
+    Esta función cambia la textura de la pista según el botón de textura
+    seleccionado.
+    """
     global texture, track1, track2, track3
-    texture = './assets/track1.jpg'
-    track1.color = color.green
-    track2.color = color.white
-    track3.color = color.white
 
-
-def texture2():
-    global texture, track1, track2, track3
-    texture = './assets/track2.jpg'
-    track1.color = color.white
-    track2.color = color.green
-    track3.color = color.white
-
-
-def texture3():
-    global texture, track1, track2, track3
-    texture = './assets/track3.jpg'
-    track1.color = color.white
-    track2.color = color.white
-    track3.color = color.green
+    texture_paths = ['./assets/track1.jpg', './assets/track2.jpg',
+                     './assets/track3.jpg']
+    texture = texture_paths[track_number - 1]
+    for i, button in enumerate([track1, track2, track3]):
+        button.color = color.green if i == (
+                track_number - 1) else color.white
 
 
 if __name__ == '__main__':

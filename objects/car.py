@@ -6,10 +6,12 @@ from objects.timer import Timer
 
 class Singleton:
     """
-    Clase Singleton que garantiza que solo haya una instancia de cada clase específica.
-    
+    Clase Singleton que garantiza que solo haya una instancia de cada clase
+    específica.
+
     Atributos:
-    - INSTANCES (dict): Un diccionario para almacenar las instancias únicas de las clases.
+    - INSTANCES (dict): Un diccionario para almacenar las instancias únicas de
+     las clases.
     """
     INSTANCES = {}
 
@@ -81,19 +83,30 @@ class Car(Entity):
         self.ENEMY_CAR_SPEED_BACK = [random.uniform(0.05, 0.14),
                                      random.uniform(0.15, 0.25)]
 
-    def update(self):
+    def update(self) -> None:
         """
         Método para actualizar la posición del coche en cada fotograma del juego.
+        """
+        self.enemy_movement()
+        self.enemy_respawn()
+
+    def enemy_movement(self) -> None:
+        """
+        Método para manejar el movimiento del coche enemigo.
         """
         if self.rotation_y == 0:
             self.z -= time.dt * self.speed
             self.ENEMY_CAR_SPEED_FRONT[0] -= self.ENEMY_ACCELERATION
             self.ENEMY_CAR_SPEED_FRONT[1] -= self.ENEMY_ACCELERATION
-        else:  # for car3 and car4
+        else:
             self.z -= time.dt * self.speed
             self.ENEMY_CAR_SPEED_BACK[0] += self.ENEMY_ACCELERATION
             self.ENEMY_CAR_SPEED_BACK[1] += self.ENEMY_ACCELERATION
 
+    def enemy_respawn(self) -> None:
+        """
+        Método para manejar el reaparición del coche enemigo.
+        """
         if self.z < -0.3:
             self.speed = random.uniform(0.3, 0.6)
             self.z = 0.4
@@ -129,13 +142,24 @@ class PlayerCar(Car):
         super().__init__(img, position, angle, track, 0)
         self.scale = (0.2, self.scale_y, self.scale_z)
 
-    def update(self):
+    def update(self) -> None:
         """
         Método para actualizar la posición del coche del jugador en cada fotograma del juego.
+        """
+        self.player_movement()
+        self.check_boundaries()
+
+    def player_movement(self) -> None:
+        """
+        Método para manejar el movimiento del coche del jugador.
         """
         self.x += held_keys['d'] * time.dt * 0.4
         self.x -= held_keys['a'] * time.dt * 0.4
 
+    def check_boundaries(self) -> None:
+        """
+        Método para verificar los límites del área de juego.
+        """
         if self.x >= 0.38:
             self.x = 0.38
         if self.x <= -0.33:
@@ -147,23 +171,39 @@ class CarGroup(Entity):
     Clase que representa un grupo de coches.
     """
 
-    def __init__(self, player_car, timer):
+    def __init__(self, player_car: PlayerCar, timer: Timer):
+        """
+         Constructor de la clase CarGroup.
+
+         Parámetros:
+             player_car (PlayerCar): El coche del jugador.
+             timer (Timer): El temporizador del juego.
+         """
         super().__init__()
         self._cars = []
         self.player_car = player_car
         self.timer = timer
 
-    def add_car(self, car):
+    def add_car(self, car: Car) -> None:
         """
         Método para añadir un coche al grupo.
+
+        Parámetros:
+            car (Car): El coche que se añadirá al grupo.
         """
         self._cars.append(car)
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Método para actualizar la lógica del grupo de coches en cada fotograma del juego.
+        """
         self.timer.update()
         self.check_for_collision()
 
-    def check_for_collision(self):
+    def check_for_collision(self) -> None:
+        """
+        Método para detectar colision
+        """
         for car in self._cars:
             if abs(self.player_car.x - car.x) < 0.05:
                 if abs(self.player_car.z - car.z) < 0.05:
