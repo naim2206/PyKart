@@ -89,6 +89,12 @@ class Car(Entity):
         """
         self.enemy_movement()
         self.enemy_respawn()
+    
+    def check_for_collision(self, player_car):
+        if abs(player_car.x - self.x) < 0.05 and abs(player_car.z - self.z) < 0.05:
+            return True
+        return False
+
 
     def enemy_movement(self) -> None:
         """
@@ -160,8 +166,8 @@ class PlayerCar(Car):
         """
         Método para verificar los límites del área de juego.
         """
-        if self.x >= 0.38:
-            self.x = 0.38
+        if self.x >= 0.35:
+            self.x = 0.35
         if self.x <= -0.33:
             self.x = -0.33
 
@@ -204,10 +210,10 @@ class CarGroup(Entity):
         """
         Método para detectar colision
         """
+        # Verifica colisión para cada coche en el grupo
         for car in self._cars:
-            if abs(self.player_car.x - car.x) < 0.05:
-                if abs(self.player_car.z - car.z) < 0.05:
-                    self.timer.collision = True
-                    game_over_text = Text(text='Game Over', scale=10,
+            if car.check_for_collision(self.player_car):
+                self.timer.collision = True
+                game_over_text = Text(text='Game Over', scale=10,
                                           origin=(0, 0), x=0, y=0)
-                    self.player_car.disable()
+                self.player_car.disable()
